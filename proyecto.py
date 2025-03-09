@@ -7,6 +7,7 @@ class SocialNetWorkGraph:
     def __init__(self,users):
         self.V = users
         self.adj =[[] for _ in range(users)]
+        self.letters = [chr(i) for i in range(ord('A'), ord('A') + users)]  
         
         
     def add_following(self, u, v):
@@ -96,17 +97,20 @@ class SocialNetWorkGraph:
     def visualizar(self, sccs):
         G = nx.DiGraph()
         color_map = {}
-        
-        for i , componente in enumerate(sccs):
+
+        for i, componente in enumerate(sccs):
             for nodo in componente:
-                color_map[nodo] = i
-                for vecino in self.adj[nodo]:
-                    G.add_edge(nodo, vecino)
-        
+                nombre_nodo = nodo  
+                color_map[nombre_nodo] = i
+                for vecino in self.adj[ord(nombre_nodo) - ord('A')]: 
+                    G.add_edge(nombre_nodo, self.letters[vecino])  
+
         posicion = nx.spring_layout(G)
         colores = [color_map.get(nodo, 0) for nodo in G.nodes()]
         nx.draw(G, posicion, with_labels=True, node_color=colores, cmap=plt.cm.rainbow, node_size=500)
         plt.show()
+
+
     
     def generate_random_network(self, edges_percentage=0.3):
         
@@ -125,14 +129,19 @@ def test_twiter_social(num_users=10,follow_prob=0.3):
     start = time.time()
     sccs_kosaraju = g.kosaraju()
     end = time.time()
-    print("Grupos de Usuarios: ", sccs_kosaraju,"Tiempo: ", end - start)
-    g.visualizar(sccs_kosaraju)
     
+    sccs_kosaraju_letras = [[g.letters[i] for i in componente] for componente in sccs_kosaraju]
     
+    print("Grupos de Usuarios: ", sccs_kosaraju_letras,"Tiempo: ", end - start)
+    g.visualizar(sccs_kosaraju_letras)
+     
     start = time.time()
     sccs_tarjan = g.tarjan()
     end = time.time()
-    print("Grupos de Usuarios: ", sccs_tarjan,"Tiempo: ", end - start)
-    g.visualizar(sccs_tarjan)
+    
+    sccs_tarjan_letras = [[g.letters[i] for i in componente] for componente in sccs_tarjan]
+
+    print("Grupos de Usuarios: ", sccs_tarjan_letras,"Tiempo: ", end - start)
+    g.visualizar(sccs_tarjan_letras)
         
 test_twiter_social() 
